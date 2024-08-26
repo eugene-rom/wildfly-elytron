@@ -176,7 +176,10 @@ public final class AuthenticationContextConfigurationClient {
         }
         // capture forwards
         if (authenticationNameForwardSecurityDomain != null) {
-            configuration = configuration.useForwardedAuthenticationIdentity(null).usePrincipal(authenticationNameForwardSecurityDomain.getCurrentSecurityIdentity().getPrincipal());
+            Principal principal = authenticationNameForwardSecurityDomain.getCurrentSecurityIdentity().getPrincipal();
+            if ( principal != AnonymousPrincipal.getInstance() ) {
+                configuration = configuration.useForwardedAuthenticationIdentity(null).usePrincipal(principal);
+            }
         }
         final SecurityDomain authenticationCredentialsForwardSecurityDomain = configuration.authenticationCredentialsForwardSecurityDomain;
         if (authenticationCredentialsForwardSecurityDomain != null) {
@@ -184,7 +187,9 @@ public final class AuthenticationContextConfigurationClient {
             final IdentityCredentials privateCredentials = securityIdentity.getPrivateCredentials();
             final IdentityCredentials publicCredentials = securityIdentity.getPublicCredentials();
             // private overrides public
-            configuration = configuration.useForwardedAuthenticationCredentials(null).useCredentials(publicCredentials.with(privateCredentials));
+            if ( privateCredentials != IdentityCredentials.NONE ) {
+                configuration = configuration.useForwardedAuthenticationCredentials(null).useCredentials(publicCredentials.with(privateCredentials));
+            }
         }
         configuration = configuration.captureAuthorizationIdentity();
         if (AuthenticationConfiguration.WILDFLY_ELYTRON_CAPTURE_ACCESS_CONTROL_CONTEXT_PROPERTY) {

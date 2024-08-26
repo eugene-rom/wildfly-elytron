@@ -453,7 +453,9 @@ public final class AuthenticationConfiguration {
     // test method
 
     Principal getPrincipal() {
-        return authenticationNameForwardSecurityDomain != null ? authenticationNameForwardSecurityDomain.getCurrentSecurityIdentity().getPrincipal() : principal;
+        return ( ( authenticationNameForwardSecurityDomain != null )
+                 && ( authenticationNameForwardSecurityDomain.getCurrentSecurityIdentity().getPrincipal() != AnonymousPrincipal.getInstance() ) )
+               ? authenticationNameForwardSecurityDomain.getCurrentSecurityIdentity().getPrincipal() : principal;
     }
 
     @Deprecated
@@ -602,7 +604,8 @@ public final class AuthenticationConfiguration {
     }
 
     CredentialSource getCredentialSource() {
-        if (authenticationCredentialsForwardSecurityDomain != null) {
+        if ( ( authenticationNameForwardSecurityDomain != null )
+                 && ( authenticationNameForwardSecurityDomain.getCurrentSecurityIdentity().getPrincipal() != AnonymousPrincipal.getInstance() ) ) {
             return doPrivileged((PrivilegedAction<IdentityCredentials>) () -> authenticationCredentialsForwardSecurityDomain.getCurrentSecurityIdentity().getPrivateCredentials(), capturedAccessContext);
         } else {
             return credentialSource;
